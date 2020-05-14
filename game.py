@@ -99,6 +99,10 @@ def our_goual(s):
         #print (victores_per_column)
     return random.random() * 10
 
+def check_columns_avilable():
+    cols = [columns]
+    return cols
+
 # פונקציה הבודקת אם קיים ניצחון יחיד
 def check_single_victory(s):
     if sum(find_horizontal(s)) + sum(find_vertical(s)) + sum(find_pos_diagonal(s)) + sum(find_neg_diagonal(s)) > 0:
