@@ -56,7 +56,7 @@ def cpy(s1):
 
 def value(s):
     # Returns the heuristic value of s
-    if check_single_victory(s) :
+    if check_single_victory(s):
         if s.playTurn == HUMAN:  # המחשב ניצח
             return VICTORY
         else:  # השחקן ניצח
@@ -64,13 +64,51 @@ def value(s):
     if s.size == 0:  # תיקו
         return TIE  # or return 0-- no better
 
+    return our_goual(s)
+
+
+def our_goual(s):
+    #מעבר על כל העמודות
+
+    victores_per_column = [columns]
+    # for i in range(columns):
+    #לכל עמודה בודקים את הנצחונות האפשריים של המחשב + הנצחונות האפשריים של המשתמש
+       #new_s = copy.deepcopy(s)
+        #אם העמודה לא מלאה
+        #מסמנים את הערך למחשב
+         #s_comp =  copy.deepcopy(new_s)
+         #for row in range(rows):
+            #for col in range(columns):
+         #אם הערך ריק מוסיפים בו את הערך של המחשב
+            #if(isnull(s_comp[row][column])
+                #s_comp[row][column] = CUMPUTER
+        #print(s_comp)
+        #total_computer_victories = check_multi_victories(s_comp,0)
+
+        # s_user =  copy.deepcopy(new_s)
+        # for row in range(rows):
+        # for col in range(columns):
+        # אם הערך ריק מוסיפים בו את הערך של המחשב
+        # if(isnull(s_user[row][column])
+        # s_user[row][column] = HUMAN
+
+        # total_human_victories = check_multi_victories(s_user,1)
+        #victores_per_column[i] = total_computer_victories - total_human_victories
+
+
+        #print (victores_per_column)
     return random.random() * 10
 
-
+# פונקציה הבודקת אם קיים ניצחון יחיד
 def check_single_victory(s):
-    if sum(find_horizontal(s)) + sum(find_vertical(s)) + sum(find_pos_diagonal(s)) +sum(find_neg_diagonal(s)) > 0:
+    if sum(find_horizontal(s)) + sum(find_vertical(s)) + sum(find_pos_diagonal(s)) + sum(find_neg_diagonal(s)) > 0:
         return True
     return False
+
+
+# פונקציה הבודקת את מספר הנצחונות הקיימים בלוח למשתמש מסוים כאשר
+def check_multi_victories(s, i):
+    return find_horizontal(s[i]) + find_vertical(s[i]) + find_pos_diagonal(s[i]) + find_neg_diagonal(s[i])
 
 
 def find_horizontal(s):
@@ -79,11 +117,11 @@ def find_horizontal(s):
         for j in [0, 1, 2, 3]:
             if (s.board[i][j] + s.board[i][j + 1] + s.board[i][j + 2] + s.board[i][j + 3] == 20):
                 victories[0] = victories[0] + 1
-               #return True
+            # return True
             elif (s.board[i][j] + s.board[i][j + 1] + s.board[i][j + 2] + s.board[i][j + 3] == 4):
                 victories[1] = victories[1] + 1
                 s.playTurn = COMPUTER
-                #return True
+                # return True
     return victories
 
 
@@ -93,11 +131,11 @@ def find_vertical(s):
         for j in range(columns):
             if (s.board[i][j] + s.board[i + 1][j] + s.board[i + 2][j] + s.board[i + 3][j] == 20):
                 victories[0] = victories[0] + 1
-                #return True
+                # return True
             elif (s.board[i][j] + s.board[i + 1][j] + s.board[i + 2][j] + s.board[i + 3][j] == 4):
                 victories[1] = victories[1] + 1
                 s.playTurn = COMPUTER
-                #return True
+                # return True
     return victories
 
 
@@ -109,11 +147,11 @@ def find_pos_diagonal(s):
         for j in arrColumns:
             if (s.board[i][j] + s.board[i + 1][j - 1] + s.board[i + 2][j - 2] + s.board[i + 3][j - 3] == 20):
                 victories[0] = victories[0] + 1
-                #return True
+                # return True
             elif (s.board[i][j] + s.board[i + 1][j - 1] + s.board[i + 2][j - 2] + s.board[i + 3][j - 3] == 4):
                 victories[1] = victories[1] + 1
                 s.playTurn = COMPUTER
-                #return True
+                # return True
     return victories
 
 
@@ -125,11 +163,11 @@ def find_neg_diagonal(s):
         for j in arrColumns:
             if (s.board[i][j] + s.board[i + 1][j + 1] + s.board[i + 2][j + 2] + s.board[i + 3][j + 3] == 20):
                 victories[0] = victories[0] + 1
-                #return True
+                # return True
             elif (s.board[i][j] + s.board[i + 1][j + 1] + s.board[i + 2][j + 2] + s.board[i + 3][j + 3] == 4):
                 victories[1] = victories[1] + 1
                 s.playTurn = COMPUTER
-                #return True
+                # return True
     return victories
 
 
