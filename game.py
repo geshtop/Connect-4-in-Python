@@ -116,7 +116,6 @@ def find_horizontal(s, size, user):
             if delta > 0 :
                 for d in range(delta):
                     delta_total = delta_total + s.board[i][size +  delta]
-                print (delta_total)
             if (user == 0 or user == COMPUTER) and num1 == COMPUTER * size and delta_total == 0 :
                 return True
             if (user  == 0 or user == HUMAN) and num1 == HUMAN * size and delta_total == 0:
@@ -137,9 +136,9 @@ def find_vertical(s, size, user):
             if delta > 0:
                 for d in range(delta):
                     delta_total = delta_total + s.board[size + delta][j]
-            if (user == 0 or user == COMPUTER) and num2 == COMPUTER * size:
+            if (user == 0 or user == COMPUTER) and num2 == COMPUTER * size and delta_total == 0:
                 return True
-            if (user  == 0 or user == HUMAN) and num2 == HUMAN * size:
+            if (user  == 0 or user == HUMAN) and num2 == HUMAN * size and delta_total == 0:
                 return True
     return False
 
