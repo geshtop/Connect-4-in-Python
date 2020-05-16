@@ -78,19 +78,19 @@ def our_goual(s):
             return 0.03 * 10  # הערך ללוח יהיה יותר קטן
 
     #מדובר פה לאחר שאלפאביתא כבר דאג לשכפל את הלוח ולהכניס לעמודה X ולכן נבדוק עכשיו אם יש רצפים אחרים
-    if check_single_victory(s, SIZE - 1, COMPUTER): #בדיקת רצף 3
+    if check_single_victory(s, SIZE - 1, 0): #בדיקת רצף 3
         if s.playTurn == HUMAN :  # למחשב יש רצף
             return 0.15 * 10 #מתקבל ערך ללוח
         elif s.playTurn == COMPUTER:   #לשחקן יש רצף
             return 0.03 * 10 #הערך ללוח יהיה יותר קטן
 
-    if check_single_victory(s, SIZE - 2 , COMPUTER): #אם אין רצף 3, בדיקת רצף 2
+    if check_single_victory(s, SIZE - 2 , 0): #אם אין רצף 3, בדיקת רצף 2
         if s.playTurn == HUMAN :  # המחשב ניצח
             return 0.1 * 10  # מתקבל ערך ללוח
         elif s.playTurn == COMPUTER :  # לשחקן יש רצף
             return 0.02 * 10  # הערך ללוח יהיה יותר קטן
 
-    if check_single_victory(s, SIZE - 3 , COMPUTER): #כשאין רצף 2 בלוח נבדוק איפה
+    if check_single_victory(s, SIZE - 3 , 0): #כשאין רצף 2 בלוח נבדוק איפה
         if s.playTurn == HUMAN :  # המחשב ניצח
             return 0.05 * 10  # מתקבל ערך ללוח
         elif s.playTurn == COMPUTER :  # לשחקן יש רצף
