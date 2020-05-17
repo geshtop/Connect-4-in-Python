@@ -1,6 +1,9 @@
 import copy
 import alphaBetaPruning
-import random
+import bcolors
+
+bcolors = bcolors.bcolors()
+
 
 VICTORY = 10 ** 20  # The value of a winning board (for max)
 LOSS = -VICTORY  # The value of a losing board (for max)
@@ -44,136 +47,126 @@ def create(s) :
     # return [board, 0.00001, playTurn, r*c]     # 0 is TIE
 
 
-def cpy(s1) :
+def cpy(s1):
     # construct a parent DataFrame instance
     s2 = game()
     s2.playTurn = s1.playTurn
     s2.size = s1.size
     s2.board = copy.deepcopy(s1.board)
-    #print("board ", s2.board)
+    print("board ", s2.board)
     return s2
 
 
 def value(s):
-    print("Value", s.board)
     # Returns the heuristic value of s
-    if check_single_victory(s, SIZE, 0):  # בדיקת ניצחון לרצף כל שהוא, בהתחלה זה ל-4
-        if s.playTurn == HUMAN:  # המחשב ניצח
-            return VICTORY
-        else:  # השחקן ניצח
-            return LOSS
-    elif s.size == 0:  # תיקו
-        return TIE  # or return 0-- no better
+    grade = Grade(s) #שליחה לפונקציה המחזירה ציון עבור הלוח
+    if grade == VICTORY: #למקרה והציון הוא ציון ניצחון
+        return VICTORY #מחזיר ניצחון
+    elif grade == LOSS: #למקרה והציון הוא ציון הפסד
+        return LOSS #תחזיר הפסד
+    elif s.size == 0: #אם נגמר המקום בלוח ואין לא ניצחון ולא הפסד
+        return TIE #תחזיר תיקו
     else:
-        return our_goual(s)
+        return grade + 0.00001# מוסיף ערך קטן כי אם עשינו על זה פעולות וזה יצא אפס שלא יחזיר בטעות תיקו
+
+def Grade(s): #פונקציה הסוכמת ציון עבור כל אפשרוות של שורה, עמודה ואלכסון ומחזירה ציון כללי עבור הלוח
+    grade1 = find_horizontal(s) #ציון שורה
+    grade2 = find_vertical(s) #ציון עמודה
+    grade3 = find_pos_diagonal(s) #ציון אלכסון חיובי
+    grade4 = find_neg_diagonal(s) #ציון אלכסון שלילי
+    win_loss = [VICTORY, LOSS]
+    if (grade1 in win_loss):
+        return grade1
+    elif (grade2 in win_loss):
+        return grade2
+    elif (grade3 in win_loss):
+        return grade3
+    elif (grade4 in win_loss):
+        return grade4
+    else: return grade1 + grade2 + grade3 + grade4
 
 
-def our_goual(s):
-
-
-    if check_single_victory(s, SIZE - 1, HUMAN):  # ליריב בדיקת רצף 3
-        if s.playTurn == HUMAN:  # למחשב יש רצף
-            return 0.15 * 10  # מתקבל ערך ללוח
-        elif s.playTurn == COMPUTER:  # לשחקן יש רצף
-            return 0.03 * 10  # הערך ללוח יהיה יותר קטן
-
-    #מדובר פה לאחר שאלפאביתא כבר דאג לשכפל את הלוח ולהכניס לעמודה X ולכן נבדוק עכשיו אם יש רצפים אחרים
-    if check_single_victory(s, SIZE - 1, 0): #בדיקת רצף 3
-        if s.playTurn == HUMAN :  # למחשב יש רצף
-            return 0.15 * 10 #מתקבל ערך ללוח
-        elif s.playTurn == COMPUTER:   #לשחקן יש רצף
-            return 0.03 * 10 #הערך ללוח יהיה יותר קטן
-
-    if check_single_victory(s, SIZE - 2 , 0): #אם אין רצף 3, בדיקת רצף 2
-        if s.playTurn == HUMAN :  # המחשב ניצח
-            return 0.1 * 10  # מתקבל ערך ללוח
-        elif s.playTurn == COMPUTER :  # לשחקן יש רצף
-            return 0.02 * 10  # הערך ללוח יהיה יותר קטן
-
-    if check_single_victory(s, SIZE - 3 , 0): #כשאין רצף 2 בלוח נבדוק איפה
-        if s.playTurn == HUMAN :  # המחשב ניצח
-            return 0.05 * 10  # מתקבל ערך ללוח
-        elif s.playTurn == COMPUTER :  # לשחקן יש רצף
-            return 0.01 * 10  # הערך ללוח יהיה יותר קטן
-
-# פונקציה הבודקת אם קיים רצף של size
-def check_single_victory(s, size, user):
-    if find_horizontal(s, size, user) or find_vertical(s, size, user) or find_pos_diagonal(s, size, user) or find_neg_diagonal(s, size, user):
-        return True
-    return False
-
-
-def find_horizontal(s, size, user):
-    if size > SIZE:
-        size = SIZE
-    delta = SIZE - size
-    delta_total = 0
+def find_horizontal(s): #פונקציה העוברת על השורות וכל סט של ארבע משבצות היא שולחת לבדיקה
+    grade = 0
+    ihor = []
     for i in range(rows):
-        for j in range(columns + 1 - size):
-            num1 = 0
-            for k in range(size):
-                num1 = num1 + s.board[i][j + k]
-            if delta > 0 :
-                for d in range(delta):
-                    delta_total = delta_total + s.board[i][size +  delta]
-            if (user == 0 or user == COMPUTER) and num1 == COMPUTER * size and delta_total == 0 :
-                return True
-            if (user  == 0 or user == HUMAN) and num1 == HUMAN * size and delta_total == 0:
-                return True
-    return False
+        for j in range(columns + 1 - SIZE):
+            ihor.clear()
+            for k in range(SIZE):
+                ihor.append(s.board[i][j + k]) #כל סט של ארבע משבצות מכניס לרשימה
+            _help = checkSeq(ihor) #שליחת הרשימה לבדיקה וקבלת מצב על הסט
+            if _help in [VICTORY, LOSS] :  # אם זה נצחון או הפסד תחזיר את הציון
+                return _help
+            grade += _help  # סוכם עם הציון הקודם
+    return grade
 
 
-def find_vertical(s, size, user):
-    if size > SIZE:
-        size = SIZE
-    delta = SIZE - size
-    delta_total = 0
-    for i in range(rows + 1 - size):
+def find_vertical(s): #פונקציה העוברת על העמודות וכל סט של ארבע משבצות היא שולחת לבדיקה
+    grade = 0
+    iver = []
+    for i in range(rows + 1 - SIZE):
         for j in range(columns):
-            num2 = 0
-            for k in range(size):
-                num2 = num2 + s.board[i + k][j]
-            if delta > 0:
-                for d in range(delta):
-                    delta_total = delta_total + s.board[size + delta][j]
-            if (user == 0 or user == COMPUTER) and num2 == COMPUTER * size and delta_total == 0:
-                return True
-            if (user  == 0 or user == HUMAN) and num2 == HUMAN * size and delta_total == 0:
-                return True
-    return False
+            iver.clear()
+            for k in range(SIZE):
+                iver.append(s.board[i + k][j]) #כל סט של ארבע משבצות מכניס לרשימה
+            _help = checkSeq(iver) #שליחת הרשימה לבדיקה וקבלת מצב על הסט
+            if _help in [VICTORY, LOSS] :  # אם זה נצחון או הפסד תחזיר את הציון
+                return _help
+            grade += _help  # סוכם עם הציון הקודם
+    return grade
 
 
-def find_pos_diagonal(s, size ,user):
-    if size > SIZE:
-        size = SIZE
-    delta = SIZE - size
-    delta_total = 0
-    for i in range(rows + 1 - size):
-        for j in range(size - 1, columns):
-            num3 = 0
-            for k in range(size):
-                num3 = num3 + s.board[i + k][j - k]
-                if (user == 0 or user == COMPUTER) and num3 == COMPUTER * size:
-                    return True
-                if (user  == 0 or user == HUMAN) and num3 == HUMAN * size:
-                    return True
-    return False
+def find_neg_diagonal(s): #פונקציה העוברת על האלכסונים השליליים וכל סט של ארבע משבצות היא שולחת לבדיקה
+    grade = 0
+    idiagneg = []
+    for i in range(rows + 1 - SIZE):
+        for j in range(columns + 1 - SIZE):
+            idiagneg.clear()
+            for k in range(SIZE):
+                idiagneg.append(s.board[i + k][j + k]) #כל סט של ארבע משבצות מכניס לרשימה
+            _help = checkSeq(idiagneg) #שליחת הרשימה לבדיקה וקבלת מצב על הסט
+            if _help in [VICTORY, LOSS] :  # אם זה נצחון או הפסד תחזיר את הציון
+                return _help
+            grade += _help  # סוכם עם הציון הקודם
+    return grade
+
+def find_pos_diagonal(s): #פונקציה העוברת על האלכסוניים החיוביים וכל סט של ארבע משבצות היא שולחת לבדיקה
+    grade = 0
+    idiagpos = []
+    for i in range(rows + 1 - SIZE):
+        for j in range(SIZE - 1, columns):
+            idiagpos.clear()
+            for k in range(SIZE):
+                idiagpos.append(s.board[i + k][j - k]) #כל סט של ארבע משבצות מכניס לרשימה
+            _help = checkSeq(idiagpos) #שליחת הרשימה לבדיקה וקבלת מצב על הסט
+            if _help in [VICTORY, LOSS] :  # אם זה נצחון או הפסד תחזיר את הציון
+                return _help
+            grade += _help  # סוכם עם הציון הקודם
+    return grade
 
 
-def find_neg_diagonal(s, size, user):
-    for i in range(rows + 1 - size):
-        for j in range(columns + 1 - size):
-            num4 = 0
-            for k in range(size):
-                num4 = num4 + s.board[i + k][j + k]
-                if(user == 0 or user == COMPUTER) and num4 == COMPUTER * size:
-                    return True
-                if (user  == 0 or user == HUMAN) and num4 == HUMAN *size:
-                    return True
-    return False
-
+def checkSeq(seq): #בודקת ברצף של 4 את היחס בין השחקני מחשב והשחקני משתמש הנמצאים שם
+    sumPlayers = sum(seq) #סכום הכולל גם של המחשב וגם של המשתמש
+    if sumPlayers == SIZE * HUMAN: #אם קיבלנו 4 זה אומר שיש לנו 4 שחקני משתמש
+        return LOSS #המחשב הפסיד
+    if sumPlayers == SIZE * COMPUTER: # אם קיבלנו 20 זה אומר שיש לנו 4 שחקני מחשב
+        return VICTORY # המחשב ניצח
+    if sumPlayers == 2 * SIZE: #אם קיבלנו 8 זה אומר שיש לנו מחשב אחד ושלושה משתמשים
+        return 1000 #לכן ניתן ציון גבוה ממש כדי שהמחשב ישאר שם
+    if sumPlayers == 2 * SIZE - 1:#אם קיבלנו 7 זה אומר מחשב אחד ו-2 משתמש
+        comp_index = seq.index(COMPUTER) #זה תלוי איפה המחשה נמצא. אינדקס של המחשב
+        if (comp_index in [1, 2] and seq[comp_index + 1] == HUMAN and seq[comp_index - 1] == HUMAN): #במחשב בין 2 משתמשים
+            return 500
+        if (comp_index < 3 and seq[comp_index + 1] == HUMAN) or (comp_index > 0 and seq[comp_index - 1] == HUMAN): #מצד כלשהו יש למחשב משתמש, אך לא מ2 הצדדים
+            return 100
+    if COMPUTER not in seq:#יש לי רק שחקנים של המשתמש
+        return -sumPlayers
+    if HUMAN not in seq: #יש לי רק שחקנים של המחשב
+        return sumPlayers % SIZE #בודק כמה מחשבים
+    return 0
 
 def printState(s):
+
     # Prints the board. The empty cells are printed as numbers = the cells name(for input)
     # If the game ended prints who won.
     for r in range(rows) :
@@ -181,25 +174,30 @@ def printState(s):
         # print("\n",len(s[0][0])*" --","\n|",sep="", end="")
         for c in range(columns) :
             if s.board[r][c] == COMPUTER :
-                print("X|", end="")
+                #print("X|", end="")
+                print(bcolors.RED + bcolors.BOLD +"X" + bcolors.ENDC +"|"  , end="")
+
             elif s.board[r][c] == HUMAN :
-                print("O|", end="")
+                #print("O|", end="")
+                print(bcolors.BLUE + bcolors.BOLD +"O" + bcolors.ENDC +"|"  , end="")
+
             else :
                 print(" |", end="")
 
     print()
 
     for i in range(columns) :
-        print(" ", i, sep="", end="")
+        print(bcolors.CYAN + " " , i, sep="", end="")
 
-    print()
+
+    print(bcolors.ENDC)
 
     val = value(s)
 
     if val == VICTORY :
-        print("I won!")
+        print( bcolors.RED + "I won!" + bcolors.ENDC)
     elif val == LOSS :
-        print("You beat me!")
+        print( bcolors.BLUE + "You beat me!" + bcolors.ENDC)
     elif val == TIE :
         print("It's a TIE")
 
@@ -260,15 +258,15 @@ def getNext(s) :
     # returns a list of the next states of s
     ns = []
     for c in list(range(columns)) :
-        #print("c=", c)
+        print("c=", c)
         if s.board[0][c] == 0 :
-            #print("possible move ", c)
+            print("possible move ", c)
             tmp = cpy(s)
             makeMove(tmp, c)
-            #print("tmp board=", tmp.board)
+            print("tmp board=", tmp.board)
             ns += [tmp]
-            #print("ns=", ns)
-    #print("returns ns ", ns)
+            print("ns=", ns)
+    print("returns ns ", ns)
     return ns
 
 
